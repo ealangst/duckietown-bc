@@ -6,4 +6,4 @@ tables
 requests
 pyrosbag
 opencv-python
-numpy
+numpy>=1.19.0
