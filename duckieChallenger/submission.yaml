@@ -1,12 +1,11 @@
-protocol: aido2_db18_agent-z2
 challenge:
-  - aido-LF*
+  - aido-LF-full-sim-validation
 
-#challenge: [] # This will submit to all available challenges.
+protocol: aido5-db20-full-z2
 user-label: "baseline-behavior-cloning"
 user-payload:
-    features_required:
-        gpu: 1
+   features_required:
+       gpu: 1
 description: |
     Behavior cloning baseline.
-validation_challenge: aido-hello-sim-validation
+validation_challenge: aido-hello-sim-full-validation
