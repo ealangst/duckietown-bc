@@ -47,7 +47,7 @@ class DuckieChallenger:
         context.info("Check GPU...")
 
         limit_gpu_memory()
-        self.check_tensorflow_gpu(context)
+        #self.check_tensorflow_gpu(context)
 
         from frankModel import FrankNet
         from helperFncs import SteeringToWheelVelWrapper
