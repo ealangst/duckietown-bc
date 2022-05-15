@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<script type="text/javascript" src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+<script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+
+<script type="text/javascript" type="text/javascript">
+  // Connecting to ROS
+  // -----------------
+
+  const ros = new ROSLIB.Ros({
+    url : 'ws://duckiedd.local:9001'
+  });
+
+  ros.on('connection', function() {
+    console.log('Connected to websocket server.');
+    
+  });
+
+  ros.on('error', function(error) {
+    console.log('Error connecting to websocket server: ', error);
+  });
+
+  ros.on('close', function() {
+    console.log('Connection to websocket server closed.');
+  });
+
+  const cmdJoy = new ROSLIB.Topic({
+      ros : ros,
+      name : '/duckiedd/joy',
+      messageType : 'sensor_msgs/Joy'
+    });
+
+  const controllers = {};
+
+  function addgamepad(gamepad) {
+    controllers[gamepad.index] = gamepad;
+
+    let d = document.createElement("div");
+    d.setAttribute("id", "controller" + gamepad.index);
+
+    let t = document.createElement("h1");
+    t.appendChild(document.createTextNode("gamepad: " + gamepad.id));
+    d.appendChild(t);
+
+    let b = document.createElement("div");
+    b.className = "buttons";
+    for (let i = 0; i < gamepad.buttons.length; i++) {
+      let e = document.createElement("span");
+      e.className = "button";
+      //e.id = "b" + i;
+      e.innerHTML = i;
+      b.appendChild(e);
+    }
+
+    d.appendChild(b);
+
+    let a = document.createElement("div");
+    a.className = "axes";
+
+    for (let i = 0; i < gamepad.axes.length; i++) {
+      let p = document.createElement("progress");
+      p.className = "axis";
+      //p.id = "a" + i;
+      p.setAttribute("max", "2");
+      p.setAttribute("value", "1");
+      p.innerHTML = i;
+      a.appendChild(p);
+    }
+
+    d.appendChild(a);
+
+    // See https://github.com/luser/gamepadtest/blob/master/index.html
+    let start = document.getElementById("start");
+    if (start) {
+      start.style.display = "none";
+    }
+
+    document.body.appendChild(d);
+
+    requestAnimationFrame(updateStatus);
+  }
+
+  setInterval(()=> {
+    const controller = controllers["0"];
+    if(controller) {
+      const axes = controller.axes.map(axis => Math.abs(axis) <= 0.1 ? 0.0 : -axis);
+      axes[3] *= 0.6;
+      axes[1] *= 0.7;
+      let twist = new ROSLIB.Message({
+        axes,
+        buttons: controller.buttons.map(button => button.value)
+      });
+      cmdJoy.publish(twist);
+    }
+  }, 10);
+
+  function updateStatus() {
+    for (const [id, controller] of Object.entries(controllers)) {
+      const controllerHTML = document.getElementById("controller" + id);
+      let buttonsHTML = controllerHTML.getElementsByClassName("button");
+
+      for (let i = 0; i < controller.buttons.length; i++) {
+        let b = buttonsHTML[i];
+        let val = controller.buttons[i];
+        let pressed = val == 1.0;
+        if (typeof(val) == "object") {
+          pressed = val.pressed;
+          val = val.value;
+        }
+
+        let pct = Math.round(val * 100) + "%";
+        b.style.backgroundSize = pct + " " + pct;
+
+        if (pressed) {
+          b.className = "button pressed";
+        } else {
+          b.className = "button";
+        }
+      }
+
+      let axes = controllerHTML.getElementsByClassName("axis");
+      for (i = 0; i < controller.axes.length; i++) {
+        let a = axes[i];
+        a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
+        a.setAttribute("value", controller.axes[i] + 1);
+      }
+
+    }
+
+    requestAnimationFrame(updateStatus);
+  }
+
+  window.addEventListener("gamepadconnected", (e) => {
+    addgamepad(e.gamepad);
+  });
+  window.addEventListener("gamepaddisconnected", (e) => {
+    const gamepad = e.gamepad;
+    const d = document.getElementById("controller" + gamepad.index);
+    document.body.removeChild(d);
+    delete controllers[gamepad.index];
+  });
+
+</script>
+</head>
+
+<body>
+  <h1>roslibjs joystick</h1>
+</body>
+</html>
