@@ -10,8 +10,10 @@
   // Connecting to ROS
   // -----------------
 
+  const duckiebotName = "duckiedd";
+
   const ros = new ROSLIB.Ros({
-    url : 'ws://duckiedd.local:9001'
+    url : `ws://${duckiebotName}.local:9001`
   });
 
   ros.on('connection', function() {
@@ -29,7 +31,7 @@
 
   const cmdJoy = new ROSLIB.Topic({
       ros : ros,
-      name : '/duckiedd/joy',
+      name : `'/${duckiebotName}/joy`,
       messageType : 'sensor_msgs/Joy'
     });
 
