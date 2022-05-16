@@ -3,6 +3,10 @@ from typing import Tuple
 
 import cv2
 import numpy as np
+import os
+#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda-11/lib64:/usr/local/cuda/lib64"
 
 from aido_schemas import (
     Context,
@@ -26,6 +30,7 @@ def limit_gpu_memory(memory_limit=1024):
     import tensorflow as tf
 
     physical_gpus = tf.config.experimental.list_physical_devices("GPU")
+                                
     if physical_gpus:
         try:
             c = [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=memory_limit)]
