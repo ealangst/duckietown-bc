@@ -151,12 +151,12 @@ class HumanDriver:
         """
 
         #! Joystick no action do not record
-        if round(self.joystick.z, 2) == 0.0 and round(self.joystick.y, 2) == 0.0:
+        if round(self.joystick.rx, 2) == 0.0 and round(self.joystick.y, 2) == 0.0:
             return
 
         #! Nominal Joystick Interpretation
         x = round(self.joystick.y, 2) * 0.9  # To ensure maximum trun/velocity ratio
-        z = round(self.joystick.z, 2) * 3.0
+        z = round(self.joystick.rx, 2) * 3.0
 
         #! Joystick deadband
         # if (abs(round(joystick.y, 2)) < 0.01):
@@ -214,15 +214,16 @@ if __name__ == "__main__":
     #! Parser sector:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env-name", default=None)
-    parser.add_argument("--map-name", default="loop_pedestrians")
-    parser.add_argument("--draw-curve", default=False, help="draw the lane following curve")
+    parser.add_argument("--map-name", default="zigzag_dists") 
+    #! loop_pedestrians, small_loop_cw, 4way, small_loop, zigzag_dists, loop_obstacles, straight_road
+    parser.add_argument("--draw-curve", default=True, help="draw the lane following curve")
     parser.add_argument("--draw-bbox", default=False, help="draw collision detection bounding boxes")
-    parser.add_argument("--domain-rand", default=False, help="enable domain randomization")
-    parser.add_argument("--playback", default=True, help="enable playback after each session")
+    parser.add_argument("--domain-rand", default=True, help="enable domain randomization")
+    parser.add_argument("--playback", default=False, help="enable playback after each session")
     parser.add_argument("--distortion", default=True)
-    parser.add_argument("--steps", default=1500, help="number of steps to record in one batch")
-    parser.add_argument("--nb-episodes", default=100, help="set the total episoded number", type=int)
-    parser.add_argument("--logfile", type=str, default=None)
+    parser.add_argument("--steps", default=2000, help="number of steps to record in one batch")
+    parser.add_argument("--nb-episodes", default=5, help="set the total episoded number", type=int)
+    parser.add_argument("--logfile", type=str, default="edd.log")
     parser.add_argument("--downscale", action="store_true")
     parser.add_argument(
         "--filter-bad-data", action="store_true", help="discard data when reward is decreasing"
